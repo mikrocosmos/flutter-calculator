@@ -59,10 +59,10 @@ class _CalculateScreenState extends State<CalculateScreen> {
             Wrap(
               children: Button.buttons
                   .map((item) => SizedBox(
-                      height: screenSize.width / 4,
+                      height: screenSize.width / 5,
                       width: item == Button.n0
-                          ? screenSize.width / 2
-                          : screenSize.width / 4,
+                          ? screenSize.width / 1.7
+                          : screenSize.width / 5,
                       child: buildButton(item)))
                   .toList(),
             )
@@ -74,19 +74,21 @@ class _CalculateScreenState extends State<CalculateScreen> {
 
   Widget buildButton(value) {
     return Padding(
-        padding: const EdgeInsets.all(3.0),
+        padding: const EdgeInsets.all(2.0),
         child: Material(
-          color: Color(0xFFBE41FD),
+          color: getBtnColor(value),
           shape: OutlineInputBorder(
             borderSide: const BorderSide(width: 2.0),
+            borderRadius: BorderRadius.circular(25),
           ),
-          borderRadius: BorderRadius.circular(100),
           child: InkWell(
-            onTap: () => onBtnTap(),
+            onTap: () => onBtnTap(value),
             child: Center(
                 child: Text(value,
                     style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w500))),
+                        fontSize: 20, fontWeight: FontWeight.w500,
+                        color: Colors.black
+                    ))),
           ),
         ));
   }
@@ -105,6 +107,32 @@ class _CalculateScreenState extends State<CalculateScreen> {
       case Button.equal:
         calc();
         break;
+      default:
+        appendValue(value);
+    }
+  }
+
+  void clearAll() {
+    setState(() {
+      a = '';
+      action = '';
+      b = '';
+    });
+  }
+
+  void delete() {
+    if (b.isNotEmpty) {
+      setState(() {
+        b = b.substring(0, b.length - 1);
+      });
+    } else if (action.isNotEmpty) {
+      setState(() {
+        action = '';
+      });
+    } else if (a.isNotEmpty) {
+      setState(() {
+        a = a.substring(0, a.length - 1);
+      });
     }
   }
 
@@ -140,7 +168,7 @@ class _CalculateScreenState extends State<CalculateScreen> {
             as double;
         break;
     }
-    
+
     setState(() {
       a = result.toStringAsPrecision(5);
       action = '';
@@ -160,5 +188,47 @@ class _CalculateScreenState extends State<CalculateScreen> {
       action = '';
       b = '';
     });
+  }
+
+  void appendValue(String value) {
+    if (value != Button.point && int.tryParse(value) == null) {
+      if (b.isNotEmpty && action.isNotEmpty) {
+        calc();
+      }
+      action = value;
+    } else if (a.isEmpty || action.isEmpty) {
+      if (value == Button.point && a.contains(Button.point)) {
+        return;
+      }
+      if (value == Button.point && (a.isEmpty || a == Button.n0)) {
+        value = "0.";
+      }
+      a += value;
+    } else if (b.isEmpty || action.isNotEmpty) {
+      if (value == Button.point && b.contains(Button.point)) {
+        return;
+      }
+      if (value == Button.point && (b.isEmpty || b == Button.n0)) {
+        value = "0.";
+        return;
+      }
+      b += value;
+    }
+    setState(() {});
+  }
+
+  Color getBtnColor(value) {
+    return [Button.delete, Button.clear].contains(value)
+        ? Color(0xFFFF7B7B)
+        : [
+            Button.percent,
+            Button.multiply,
+            Button.plus,
+            Button.equal,
+            Button.minus,
+            Button.divide
+          ].contains(value)
+            ? Color(0xFF86FF6C)
+            : Color(0xFFFFFFFF);
   }
 }

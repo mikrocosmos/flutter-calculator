@@ -29,12 +29,12 @@ class Button {
   static const List<String> buttons = [
     clear,
     factorial,
-    byteLeft,
+    clear,
     delete,
 
-    factorial,
-    byteRight,
     sqrt,
+    byteLeft,
+    byteRight,
     divide,
 
     n7,
@@ -54,7 +54,6 @@ class Button {
 
     n0,
     point,
-    delete,
     equal
   ];
 }
